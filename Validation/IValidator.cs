@@ -1,9 +1,8 @@
 using IntelligencePipeline.Models.Reports;
 
 namespace IntelligencePipeline.Validation
+
+public interface IValidator
 {
-    public interface IValidator
-    {
-        ValidationResult Validate(Report report);
-    }
+    ValidationResult Validate(Report report);
 }
