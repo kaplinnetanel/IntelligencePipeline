@@ -7,7 +7,8 @@ namespace IntelligencePipeline.Pipeline
     {
         static void Main()
         {
-            DroneReport r = new DroneReport(
+           
+                DroneReport r = new DroneReport(
                 1,
                 DateTime.Now,
                 30.5000,
@@ -16,7 +17,12 @@ namespace IntelligencePipeline.Pipeline
                 2500,
                 85
             );
-            Console.WriteLine(r.GetSourceType());
+            if (report is DroneReport)
+            {
+                var validator = new DroneValidator();
+                var result = validator.Validate(report);
+
+                Console.WriteLine(r.GetSourceType());
             Console.WriteLine(r.ToString());      
         }
     }
