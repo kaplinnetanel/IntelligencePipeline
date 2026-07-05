@@ -6,17 +6,17 @@ namespace IntelligencePipeline.Calculators
     class ClassificationCalculator
     {
         //Calculates security classification based on business rules.
-       
+
         public Classification Calculate(Report report)
         {
-           if (report.Priority == Priority.Critical || report is SignalReport signal && ContainsKeywords(signal.Content, "target", "attack", "missile"))
+            if (report.Priority == Priority.Critical || report is SignalReport signal && ContainsKeywords(signal.Content, "target", "attack", "missile"))
             { return Classification.TopSecret; }
-            
+
             if (report.Priority == Priority.High || report is SignalReport || ContainsKeywords(report.Description, "weapon", "border"))
             { return Classification.Secret; }
-            
+
             if (report.Priority == Priority.Medium || report is SoldierReport)
-            {return Classification.Restricted;}
+            { return Classification.Restricted; }
 
             return Classification.Unclassified;
         }

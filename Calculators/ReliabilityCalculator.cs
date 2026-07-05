@@ -2,7 +2,7 @@ using System;
 using IntelligencePipeline.Models.Reports;
 using IntelligencePipeline.Models.Enums;
 namespace IntelligencePipeline.Calculators
-{ 
+{
     class ReliabilityCalculator
     {
         //Centralized location for reliability score calculation logic.

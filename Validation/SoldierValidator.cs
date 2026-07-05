@@ -2,17 +2,17 @@ using System;
 using IntelligencePipeline.Models.Reports;
 namespace IntelligencePipeline.Validation
 {
-    public class SignalValidator : BaseValidator
+    public class SoldierValidator : BaseValidator
     {
         //Validates signal-specific report fields.
         protected override ValidationResult ValidateSpecificFields(Report report)
         {
-            SoldierReport soldier = (SoldierReport)repore;
+            SoldierReport soldier = (SoldierReport)report;
             if (string.IsNullOrEmpty(soldier.SoldierName) || soldier.SoldierName.Length < 2 || soldier.SoldierName.Length > 50)
             {
                return ValidationResult.Failure("Invalid SoldierName: length must be between 2 and 50 characters.");
             }
-            if (string.IsNullOrEmpty(soldier.SoldierID) || soldier.SoldierID.Length != 7))
+            if (string.IsNullOrEmpty(soldier.SoldierID) || soldier.SoldierID.Length != 7)
             {
                 return ValidationResult.Failure("Invalid SoldierID: must be exactly 7 digits.");
             }

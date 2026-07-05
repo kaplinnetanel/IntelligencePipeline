@@ -53,12 +53,11 @@ namespace IntelligencePipeline.Calculators
             }
             return false;
         }
-        
-        }
-
-
-      
-            
 
     }
+
+
+
+
+
 }

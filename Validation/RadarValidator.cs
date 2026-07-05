@@ -1,7 +1,7 @@
 using System;
 using IntelligencePipeline.Models.Reports;
 namespace IntelligencePipeline.Validation
-{ 
+{
     public class RadarValidator : BaseValidator
     {
         //Validates radar-specific report fields.
@@ -21,7 +21,9 @@ namespace IntelligencePipeline.Validation
             {
                 return ValidationResult.Failure("Distance not in range");
             }
-            return ValidationResult.Success(); 
+            return ValidationResult.Success();
         }
 
     }
+
+}
