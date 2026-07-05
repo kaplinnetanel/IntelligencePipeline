@@ -4,7 +4,7 @@ namespace IntelligencePipeline.Models.Reports
 {
     public abstract class Report
     {
-        public int ReportId { get; protected set; }
+        public int? ReportId { get; set; }
         public DateTime Timestamp { get; protected set; }
         public double Latitude { get; protected set; }
         public double Longitude { get; protected set; }
@@ -15,7 +15,7 @@ namespace IntelligencePipeline.Models.Reports
         public int ReliabilityScore { get; set; }
         public string RejectionReason { get; set; }
 
-        protected Report(int reportId, DateTime timestamp, double latitude, double longitude, string description)
+        protected Report(int? reportId, DateTime timestamp, double latitude, double longitude, string description)
         {
             ReportId = reportId;
             Timestamp = timestamp;
@@ -38,7 +38,17 @@ namespace IntelligencePipeline.Models.Reports
         {
             return $"[ReportId: {ReportId}, Status: {Status}]";
         }
+        public void SetReportId(int id)
+        {
+            ReportId = id;
+        }
+
+        public List<Report> Search(string keyword)
+        {
+            return _reports.Where(r => r.Description.Contains(keyword)).ToList();
+        }
     }
+
 }
 
        

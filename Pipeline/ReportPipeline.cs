@@ -1,72 +1,56 @@
-using System;
-using System.Collections.Generic;
 using IntelligencePipeline.Models.Reports;
+using IntelligencePipeline.Storage;
+using IntelligencePipeline.Validation;
 using IntelligencePipeline.Calculators;
-using IntelligencePipeline.Models.Enums;
-using IntelligencePipeline.Validation; // הוספנו את ה-Namespace של הולידציות
-
-namespace IntelligencePipeline.Tests
+namespace IntelligencePipeline.Pipeline
 {
-    public class ReportTester
+    public class ReportPipeline
     {
-        public static void Main(string[] args)
+        private readonly ReportRepository _activeRepo;
+        private readonly RejectedReportRepository _rejectedRepo;
+        private int _nextReportId = 1;
+
+        private readonly ReliabilityCalculator _reliabilityCalculator = new ReliabilityCalculator();
+        private readonly PriorityCalculator _priorityCalculator = new PriorityCalculator();
+        private readonly ClassificationCalculator _classificationCalculator = new ClassificationCalculator();
+
+        public ReportPipeline(ReportRepository activeRepo, RejectedReportRepository rejectedRepo)
         {
-            var reports = new List<Report>
+            _activeRepo = activeRepo;
+            _rejectedRepo = rejectedRepo;
+        }
+        public void ProcessReport(Report report)
+        {
+            report.ReportId = _nextReportId++;
+            report.Status = ReportStatus.Validating;
+            ValidationResult result = GetValidator(report).Validate(report);
+            if (! result.IsValid)
             {
-                new RadarReport(1, DateTime.Now, 31.0, 35.0, "Fast object detected", 850, 45, 5000),
-                new DroneReport(2, DateTime.Now, 31.0, 35.0, "Suspicious drone", 300, 90),
-                new SoldierReport(3, DateTime.Now, 31.0, 35.0, "Movement near border", "John Doe", "1234567", "Unit101", 5)
-            };
-
-            var priorityCalc = new PriorityCalculator();
-            var classificationCalc = new ClassificationCalculator();
-            var reliabilityCalc = new ReliabilityCalculator();
-
-            Console.WriteLine("--- Starting Report Analysis Tests (With Validation) ---\n");
-
-            foreach (var report in reports)
-            {
-                // 1. קביעת הולידטור המתאים לסוג הדוח
-                IValidator validator = GetValidator(report);
-
-                // 2. ביצוע האימות
-                ValidationResult result = validator.Validate(report);
-
-                Console.WriteLine($"Testing Report Type: {report.GetSourceType()}");
-
-                if (result.IsValid)
-                {
-                    // 3. אם תקין - מבצעים חישובים
-                    report.Status = ReportStatus.Validated;
-
-                    Priority priority = priorityCalc.Calculate(report);
-                    Classification classification = classificationCalc.Calculate(report);
-                    int reliability = reliabilityCalc.Calculate(report);
-
-                    Console.WriteLine($"Status: Validated. Priority: {priority}, Classification: {classification}, Reliability: {reliability}/10");
-                }
-                else
-                {
-                    // 4. אם לא תקין - מעדכנים סטטוס וסיבת דחייה
-                    report.Status = ReportStatus.Rejected;
-                    report.RejectionReason = result.ErrorMessage;
-                    Console.WriteLine($"Status: Rejected. Reason: {result.ErrorMessage}");
-                }
-                Console.WriteLine("--------------------------------------");
+                report.Status = ReportStatus.Rejected;
+                report.RejectionReason = result.ErrorMessage;
+                _rejectedRepo.Add(report);
+                return;
             }
+            report.Status = ReportStatus.Validated;
+            report.ReliabilityScore = _reliabilityCalculator.Calculate(report);
+            report.Priority = _priorityCalculator.Calculate(report);
+            report.Classification = _classificationCalculator.Calculate(report);
+            _activeRepo.Add(report);
+      
+        }
+       
+        private IValidator GetValidator(Report report);
+        {
+            if (report is DroneReport) return new DroneValidator();
+            if (report is SoldierReport) return new SoldierValidator();
+            if (report is RadarReport) return new RadarValidator();
+            if (report is SignalReport) return new SignalValidator();
+
+            return null; 
         }
 
-        // עזר לבחירת הולידטור המתאים לפי סוג הדוח
-        private static IValidator GetValidator(Report report)
-        {
-            return report switch
-            {
-                DroneReport => new DroneValidator(),
-                SoldierReport => new SoldierValidator(),
-                RadarReport => new RadarValidator(),
-                SignalReport => new SignalValidator(),
-                _ => throw new Exception("Unknown report type")
-            };
-        }
     }
+
+
+
 }

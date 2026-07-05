@@ -29,11 +29,17 @@ namespace IntelligencePipeline.Validation
             {
                 return ValidationResult.Failure("Invalid Description: must be 10-500 characters");
             }
-            return ValidationResult.Success();
 
-          }
-          protected abstract ValidationResult ValidateSpecificFields(Report report);
-       
-            
+
+            ValidationResult result = ValidateSpecificFields(report);
+
+            if (!result.IsValid)
+            {
+                return result;
+            }
+
+            return ValidationResult.Success();
+        }
+          protected abstract ValidationResult ValidateSpecificFields(Report report);        
     }
 }
